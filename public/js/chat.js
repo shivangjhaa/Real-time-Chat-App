@@ -1,22 +1,54 @@
 const socket = io();
+
 socket.on("message", (message) => {
-  console.log(message);
+  const html = Mustache.render(messageTemplate, {
+    message: message.text,
+    createdAt: moment(message.createdAt).format("h:mm a"),
+  });
+  $messages.insertAdjacentHTML("beforeend", html);
 });
 
-const messagebox = document.getElementById("message");
-const sendButton = document.getElementById("submit");
-const updatedMessage = document.getElementById("updatedMessage");
-const kahahai = document.getElementById("location");
-sendButton.addEventListener("click", (e) => {
+socket.on("locationMessage", (url) => {
+  const html = Mustache.render(locationMessageTemplate, { url });
+  $messages.insertAdjacentHTML("beforeend", html);
+});
+
+const $messageForm = document.querySelector("#message-form");
+const $messageFormInput = $messageForm.querySelector("input");
+const $messageFormButton = $messageForm.querySelector("button");
+const $sendLocationButton = document.querySelector("#sendLocation");
+const $messages = document.querySelector("#messages");
+const messageTemplate = document.querySelector("#message-template").innerHTML;
+const locationMessageTemplate = document.querySelector(
+  "#location-message-template"
+).innerHTML;
+
+$messageForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  console.log("Click", messagebox.value);
-  socket.emit("sendMessage", messagebox.value);
+
+  $messageFormButton.setAttribute("disabled", "disabled");
+
+  const message = $messageFormInput.value;
+
+  socket.emit("sendMessage", message, (error) => {
+    $messageFormButton.removeAttribute("disabled");
+    $messageFormInput.value = "";
+    $messageFormInput.focus();
+
+    if (error) {
+      return console.log(error);
+    }
+
+    console.log("Message delivered!");
+  });
 });
 
-document.querySelector("#sendLocation").addEventListener("click", () => {
+$sendLocationButton.addEventListener("click", () => {
   if (!navigator.geolocation) {
     return alert("Geolocation is not supported by your browser.");
   }
+
+  $sendLocationButton.setAttribute("disabled", "disabled");
 
   navigator.geolocation.getCurrentPosition((position) => {
     socket.emit(
@@ -26,7 +58,8 @@ document.querySelector("#sendLocation").addEventListener("click", () => {
         longitude: position.coords.longitude,
       },
       () => {
-        console.log("Location sent");
+        console.log("Location shared!");
+        $sendLocationButton.removeAttribute("disabled");
       }
     );
   });

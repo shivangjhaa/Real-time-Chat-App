@@ -3,7 +3,7 @@ const app = express();
 const path = require("path");
 const http = require("http");
 const socketio = require("socket.io");
-
+const { generateMessage } = require("./utils/messages");
 const server = http.createServer(app);
 const io = socketio(server);
 
@@ -13,19 +13,19 @@ app.use(express.static(viewsPath));
 io.on("connection", (socket) => {
   console.log("New WebSocket connection");
 
-  socket.emit("message", "welcome");
-  socket.broadcast.emit("message", "new user connected");
+  socket.emit("message", generateMessage("welcome"));
+  socket.broadcast.emit("message", generateMessage("new user connected"));
   socket.on("sendMessage", (message) => {
-    io.emit("message", message);
+    io.emit("message", generateMessage(message));
   });
 
   socket.on("disconnect", () => {
-    io.emit("message", "a user disconnected");
+    io.emit("message", generateMessage("a user disconnected"));
   });
 
   socket.on("sendLocation", (coords, callback) => {
     io.emit(
-      "message",
+      "locationMessage",
       `https://google.com/maps?q=${coords.latitude},${coords.longitude}`
     );
     callback();
