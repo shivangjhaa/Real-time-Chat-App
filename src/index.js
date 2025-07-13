@@ -23,11 +23,12 @@ io.on("connection", (socket) => {
     io.emit("message", "a user disconnected");
   });
 
-  socket.on("sendLocation", (coords) => {
+  socket.on("sendLocation", (coords, callback) => {
     io.emit(
       "message",
       `https://google.com/maps?q=${coords.latitude},${coords.longitude}`
     );
+    callback();
   });
 });
 
