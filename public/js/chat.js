@@ -16,6 +16,7 @@ const locationMessageTemplate = document.querySelector(
 // Receive text message
 socket.on("message", (message) => {
   const html = Mustache.render(messageTemplate, {
+    username: message.username,
     message: message.text,
     createdAt: moment(message.createdAt).format("h:mm a"),
   });
@@ -24,11 +25,22 @@ socket.on("message", (message) => {
 
 // Receive location message
 socket.on("locationMessage", (message) => {
-  const html = Mustache.render(locationMessageTemplate, {
+  const html = Mustache.render(locationTemplate, {
+    username: message.username,
     url: message.url,
     createdAt: moment(message.createdAt).format("h:mm a"),
   });
   $messages.insertAdjacentHTML("beforeend", html);
+});
+
+const { username, room } = Qs.parse(location.search, {
+  ignoreQueryPrefix: true,
+});
+socket.emit("join", { username, room }, (error) => {
+  if (error) {
+    alert(error);
+    location.href = "/";
+  }
 });
 
 // Sending new message
@@ -42,9 +54,9 @@ $messageForm.addEventListener("submit", (e) => {
 
   socket.emit("sendMessage", message, (error) => {
     // Re-enable, reset input, focus
-    $messageFormButton.removeAttribute("disabled");
     $messageFormInput.value = "";
     $messageFormInput.focus();
+    $messageFormButton.removeAttribute("disabled");
 
     if (error) {
       return console.log("Error delivering message:", error);
