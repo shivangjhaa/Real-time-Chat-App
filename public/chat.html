@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+  <link rel="icon" href="/image/favicon.png" />
+  <link rel="stylesheet" href="/css/styles.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset & Tokens ──────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0a0a0f;
+      --surface:      #12121a;
+      --surface-2:    #1a1a26;
+      --surface-3:    #20202e;
+      --surface-4:    #262636;
+      --border:       rgba(255,255,255,0.07);
+      --border-2:     rgba(255,255,255,0.11);
+      --accent:       #7c5cfc;
+      --accent-glow:  rgba(124, 92, 252, 0.35);
+      --accent-2:     #c084fc;
+      --text:         #f0eeff;
+      --text-muted:   #7a7a9a;
+      --text-faint:   #3e3e55;
+      --success:      #4ade80;
+      --error:        #f87171;
+      --info:         #60a5fa;
+      --sidebar-w:    260px;
+      --topbar-h:     57px;
+      --compose-h:    72px;
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ── Atmospheric Background ──────────────────────────── */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+    }
+
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: 0.09;
+      animation: drift 20s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: var(--accent);
+      top: -220px; left: -120px;
+    }
+
+    .orb-2 {
+      width: 420px; height: 420px;
+      background: var(--accent-2);
+      bottom: -80px; right: -60px;
+      animation-delay: -8s; animation-duration: 26s;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(35px,25px) scale(1.05); }
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    }
+
+    /* ── App Shell ───────────────────────────────────────── */
+    .chat {
+      position: relative; z-index: 1;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    .chat__sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideInLeft 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes slideInLeft {
+      from { opacity:0; transform:translateX(-18px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+
+    /* brand strip */
+    .sidebar-brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 18px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 12px var(--accent-glow);
+    }
+
+    .brand-icon svg { width: 16px; height: 16px; fill: white; }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 15px; font-weight: 700;
+    }
+
+    /* sidebar body — injected by Mustache */
+    .sidebar-room {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .room-label {
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-faint); font-weight: 600; margin-bottom: 6px;
+    }
+
+    .room-title {
+      font-family: var(--font-display);
+      font-size: 15px; font-weight: 700;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .room-title::before {
+      content: '#'; color: var(--accent); font-size: 17px;
+    }
+
+    .sidebar-users {
+      flex: 1; overflow-y: auto; padding: 16px 20px;
+    }
+
+    .sidebar-users::-webkit-scrollbar { width: 3px; }
+    .sidebar-users::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }
+
+    .list-title {
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-faint); font-weight: 600; margin-bottom: 10px;
+    }
+
+    .users { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+
+    .users li {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: 8px;
+      font-size: 13px; color: var(--text-muted);
+      transition: background 0.14s, color 0.14s;
+      cursor: default;
+    }
+
+    .users li:hover { background: var(--surface-2); color: var(--text); }
+
+    .users li::before {
+      content: '';
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success); flex-shrink: 0;
+      box-shadow: 0 0 5px rgba(74,222,128,0.5);
+    }
+
+    .sidebar-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .logout-btn {
+      width: 100%; padding: 8px 12px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text-muted);
+      font-family: var(--font-body); font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; gap: 7px;
+      transition: all 0.16s;
+    }
+
+    .logout-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .logout-btn:hover {
+      border-color: rgba(248,113,113,0.4);
+      color: var(--error);
+      background: rgba(248,113,113,0.06);
+    }
+
+    /* ── Main Area ───────────────────────────────────────── */
+    .chat__main {
+      flex: 1;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      animation: fadeInMain 0.5s 0.08s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes fadeInMain {
+      from { opacity:0; }
+      to   { opacity:1; }
+    }
+
+    /* Top bar */
+    .chat-topbar {
+      height: var(--topbar-h);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 24px; gap: 10px;
+      background: rgba(18,18,26,0.85);
+      backdrop-filter: blur(18px);
+      flex-shrink: 0;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      background: none; border: none;
+      color: var(--text-muted); cursor: pointer; padding: 4px;
+    }
+
+    .topbar-room {
+      font-family: var(--font-display);
+      font-size: 15px; font-weight: 700;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .topbar-room-hash { color: var(--accent); font-size: 17px; }
+
+    .topbar-sep {
+      width: 1px; height: 16px;
+      background: var(--border-2); margin: 0 6px;
+    }
+
+    .topbar-user {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: var(--text-muted);
+    }
+
+    .topbar-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: white;
+      font-family: var(--font-display); flex-shrink: 0;
+    }
+
+    .topbar-spacer { flex: 1; }
+
+    .topbar-status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success);
+      animation: statusPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+      50%      { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+    }
+
+    /* Messages */
+    .chat__messages {
+      flex: 1; overflow-y: auto;
+      padding: 20px 24px;
+      display: flex; flex-direction: column; gap: 2px;
+      scroll-behavior: smooth;
+    }
+
+    .chat__messages::-webkit-scrollbar { width: 5px; }
+    .chat__messages::-webkit-scrollbar-track { background: transparent; }
+    .chat__messages::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+
+    /* Message bubbles */
+    .message {
+      display: flex; flex-direction: column;
+      max-width: 68%;
+      animation: msgIn 0.26s cubic-bezier(0.22,1,0.36,1) both;
+      margin-bottom: 4px;
+    }
+
+    @keyframes msgIn {
+      from { opacity:0; transform:translateY(7px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .message--self  { align-self: flex-end;  align-items: flex-end; }
+    .message--other { align-self: flex-start; align-items: flex-start; }
+
+    .message__header {
+      display: flex; align-items: baseline; gap: 8px;
+      margin-bottom: 4px; padding: 0 4px;
+    }
+
+    .message__name {
+      font-size: 12px; font-weight: 600;
+      color: var(--accent-2);
+      font-family: var(--font-display);
+    }
+
+    .message--self .message__name { color: var(--accent); }
+
+    .message__meta {
+      font-size: 11px; color: var(--text-faint);
+    }
+
+    .message__bubble {
+      padding: 10px 14px; border-radius: 14px;
+      font-size: 14px; line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .message--other .message__bubble {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .message--self .message__bubble {
+      background: linear-gradient(135deg, var(--accent), #6b46fa);
+      border-bottom-right-radius: 4px;
+      color: #fff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .message__bubble a {
+      color: inherit; text-decoration: underline;
+      text-decoration-color: rgba(255,255,255,0.4);
+    }
+
+    .message__bubble a:hover { text-decoration-color: currentColor; }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; color: var(--text-faint);
+      text-align: center; padding: 40px; user-select: none;
+    }
+
+    .empty-state svg { width: 38px; height: 38px; opacity: 0.28; }
+    .empty-state p { font-size: 14px; }
+
+    /* Compose */
+    .compose {
+      height: var(--compose-h);
+      padding: 0 24px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(18,18,26,0.92);
+      backdrop-filter: blur(18px);
+      flex-shrink: 0;
+    }
+
+    #message-form {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px 4px 4px 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #message-form:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    #message-form input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-family: var(--font-body);
+      font-size: 14px; padding: 9px 0;
+    }
+
+    #message-form input::placeholder { color: var(--text-faint); }
+
+    #message-form button {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border: none; border-radius: 9px;
+      color: #fff; font-family: var(--font-display);
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 5px;
+      transition: opacity 0.16s, transform 0.16s;
+      box-shadow: 0 2px 10px var(--accent-glow);
+      white-space: nowrap;
+    }
+
+    #message-form button svg { width: 13px; height: 13px; }
+    #message-form button:hover { opacity: 0.87; transform: translateY(-1px); }
+    #message-form button:active { transform: translateY(0); }
+
+    #send-location {
+      padding: 0 14px; height: 44px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text-muted);
+      font-family: var(--font-body); font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all 0.16s; flex-shrink: 0; white-space: nowrap;
+    }
+
+    #send-location svg { width: 15px; height: 15px; }
+
+    #send-location:hover {
+      border-color: rgba(96,165,250,0.4);
+      color: var(--info);
+      background: rgba(96,165,250,0.06);
+    }
+
+    #send-location:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 86px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 18px;
+      font-size: 13px; font-weight: 500;
+      display: flex; align-items: center; gap: 9px;
+      opacity: 0; pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+      z-index: 200; box-shadow: 0 16px 32px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast.success { border-color:rgba(74,222,128,0.3); color:var(--success); }
+    .toast.error   { border-color:rgba(248,113,113,0.3); color:var(--error); }
+    .toast.info    { border-color:rgba(96,165,250,0.3);  color:var(--info); }
+    .toast-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+    /* Scrollbar */
+    * { scrollbar-width: thin; scrollbar-color: var(--surface-3) transparent; }
+
+    /* ── Mobile ─────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      :root { --sidebar-w: 78vw; }
+
+      .chat__sidebar {
+        position: fixed; left:0; top:0; bottom:0; z-index:50;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+        box-shadow: 6px 0 28px rgba(0,0,0,0.6);
+      }
+
+      .chat__sidebar.open { transform: translateX(0); }
+
+      .sidebar-toggle { display: flex; }
+
+      .message { max-width: 88%; }
+
+      .compose { padding: 0 12px; gap: 8px; }
+
+      #send-location .loc-label { display: none; }
+
+      .chat-topbar { padding: 0 14px; }
+      .chat__messages { padding: 14px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="chat">
+
+    <!-- ── Sidebar ──────────────────────────────────── -->
+    <div id="sidebar" class="chat__sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.02 2 11c0 2.87 1.35 5.43 3.47 7.17L4 22l4.27-1.42A10.2 10.2 0 0 0 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2Zm1 13H7v-2h6v2Zm3-4H7V9h9v2Z"/></svg>
+        </div>
+        <span class="brand-name">ChatSpace</span>
+      </div>
+      <!-- Mustache injects: .sidebar-room, .sidebar-users, .sidebar-footer -->
+    </div>
+
+    <!-- ── Main ─────────────────────────────────────── -->
+    <div class="chat__main">
+
+      <!-- Topbar -->
+      <div class="chat-topbar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <div class="topbar-room">
+          <span class="topbar-room-hash">#</span>
+          <span id="topbar-room-name">room</span>
+        </div>
+
+        <div class="topbar-sep"></div>
+
+        <div class="topbar-user">
+          <div class="topbar-avatar" id="topbar-avatar">?</div>
+          <span id="topbar-username">you</span>
+        </div>
+
+        <div class="topbar-spacer"></div>
+
+        <div class="topbar-status">
+          <div class="status-dot"></div>
+          <span>Live</span>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="messages" class="chat__messages">
+        <div class="empty-state" id="empty-state">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/>
+          </svg>
+          <p>No messages yet — say hello! 👋</p>
+        </div>
+      </div>
+
+      <!-- Compose -->
+      <div class="compose">
+        <form id="message-form">
+          <input name="message" id="message" required autocomplete="off" placeholder="Message the room…" />
+          <button type="submit">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/>
+            </svg>
+            Send
+          </button>
+        </form>
+
+        <button id="send-location">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+          </svg>
+          <span class="loc-label">Location</span>
+        </button>
+        <!-- Hidden file input — accepts images, PDFs, docs, and zips -->
+<input type="file" id="file-input" style="display:none"
+       accept="image/*,.pdf,.txt,.doc,.docx,.zip" />
+
+<!-- Visible upload button -->
+<button id="send-file" title="Share a file" style="
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0 6px;
+  opacity: 0.75;
+">📎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <div class="toast-dot"></div>
+    <span id="toast-msg"></span>
+  </div>
+
+
+  <!-- ── Mustache Templates (same IDs + variables as original) ── -->
+  <script id="message-template" type="text/html">
+    <div class="message message--other">
+      <div class="message__header">
+        <span class="message__name">{{username}}</span>
+        <span class="message__meta">{{createdAt}}</span>
+      </div>
+      <div class="message__bubble">{{message}}</div>
+    </div>
+  </script>
+
+  <script id="location-message-template" type="text/html">
+    <div class="message message--other">
+      <div class="message__header">
+        <span class="message__name">{{username}}</span>
+        <span class="message__meta">{{createdAt}}</span>
+      </div>
+      <div class="message__bubble">
+        <a href="{{url}}" target="_blank">📍 My current location</a>
+      </div>
+    </div>
+  </script>
+
+  <script id="sidebar-template" type="text/html">
+    <div class="sidebar-room">
+      <div class="room-label">Current Room</div>
+      <div class="room-title">{{room}}</div>
+    </div>
+    <div class="sidebar-users">
+      <div class="list-title">Online — {{users.length}}</div>
+      <ul class="users">
+        {{#users}}
+          <li>{{username}}</li>
+        {{/users}}
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="handleLogout()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/>
+        </svg>
+        Sign out
+      </button>
+    </div>
+  </script>
+
+  <!-- Libraries -->
+   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/amazon-cognito-identity-js/6.3.6/amazon-cognito-identity.min.js"></script> -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
+
+  <!-- Auth Guard (identical to original) -->
+  <script>
+    if (typeof AmazonCognitoIdentity === "undefined") {
+  alert("Cognito SDK failed to load");
+}
+    const poolData = {
+      UserPoolId: "ap-south-1_zkpv1rOQe",
+      ClientId:   "7jba75ak4gs48c4uoa0s7c3bho"
+    };
+
+    const userPool    = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+    const currentUser = userPool.getCurrentUser();
+
+    if (!currentUser) {
+      window.location.href = "/index.html";
+    } else {
+      currentUser.getSession((err, session) => {
+        if (err || !session.isValid()) {
+          window.location.href = "/index.html";
+        }
+      });
+    }
+  </script>
+
+  <!-- UI glue (runs before chat.js) -->
+  <script>
+    /* ── Toast ──────────────────────────────────────────── */
+    function showToast(msg, type = "success") {
+      const t = document.getElementById("toast");
+      const m = document.getElementById("toast-msg");
+      if (!t || !m) return;
+      t.className = "toast " + type;
+      m.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 3200);
+    }
+
+    /* ── Mobile sidebar ─────────────────────────────────── */
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+    }
+
+    document.addEventListener("click", (e) => {
+      const sb  = document.getElementById("sidebar");
+      const tog = document.querySelector(".sidebar-toggle");
+      if (sb.classList.contains("open") && !sb.contains(e.target) && tog && !tog.contains(e.target)) {
+        sb.classList.remove("open");
+      }
+    });
+
+    /* ── Empty state observer ───────────────────────────── */
+    const _msgs  = document.getElementById("messages");
+    const _empty = document.getElementById("empty-state");
+
+    new MutationObserver(() => {
+      if (_empty) _empty.style.display =
+        _msgs.querySelectorAll(".message").length > 0 ? "none" : "";
+    }).observe(_msgs, { childList: true });
+
+    /* ── Topbar from URL params ─────────────────────────── */
+    (function () {
+      const p    = new URLSearchParams(window.location.search);
+      const user = p.get("username") || localStorage.getItem("email") || "You";
+      const room = p.get("room") || "room";
+
+      const rn = document.getElementById("topbar-room-name");
+      const av = document.getElementById("topbar-avatar");
+      const un = document.getElementById("topbar-username");
+
+      if (rn) rn.textContent = room;
+      if (av) av.textContent = user.charAt(0).toUpperCase();
+      if (un) un.textContent = user;
+    })();
+
+    /* ── Logout ─────────────────────────────────────────── */
+    function handleLogout() {
+      const u = userPool.getCurrentUser();
+      if (u) u.signOut();
+      localStorage.removeItem("token");
+      localStorage.removeItem("email");
+      showToast("Signed out. See you soon!", "success");
+      setTimeout(() => window.location.replace("/index.html"), 900);
+    }
+  </script>
+
+  <!-- Your existing chat logic — completely untouched -->
+   <script id="file-message-template" type="text/html">
+  <div class="message message--other">
+    <div class="message__header">
+      <span class="message__name">{{username}}</span>
+      <span class="message__meta">{{createdAt}}</span>
+    </div>
+    <div class="message__bubble">
+      {{#isImage}}
+        <img src="{{fileUrl}}" alt="{{fileName}}"
+             style="max-width:220px; max-height:220px; border-radius:8px; display:block; margin-bottom:6px;"
+             onclick="window.open('{{fileUrl}}','_blank')" />
+      {{/isImage}}
+      <a href="{{fileUrl}}" target="_blank" rel="noopener noreferrer"
+         style="font-size:13px;">
+        📎 {{fileName}}
+      </a>
+    </div>
+  </div>
+</script>
+  <script src="/js/chat.js"></script>
+
+  
+
+</body>
+</html>
