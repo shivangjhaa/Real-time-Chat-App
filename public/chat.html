@@ -47,7 +47,15 @@
       font-size: 15px;
       line-height: 1.5;
     }
-
+    /* Force sidebar hidden on mobile by default */
+@media (max-width: 640px) {
+  .chat__sidebar {
+    transform: translateX(-100%) !important;
+  }
+  .chat__sidebar.open {
+    transform: translateX(0) !important;
+  }
+}
     /* ── Atmospheric Background ──────────────────────────── */
     .bg-canvas {
       position: fixed; inset: 0; z-index: 0;
@@ -504,6 +512,8 @@
         </div>
         <span class="brand-name">ChatSpace</span>
       </div>
+      <div id="sidebar-content"></div>  <!-- ← add this wrapper -->
+
       <!-- Mustache injects: .sidebar-room, .sidebar-users, .sidebar-footer -->
     </div>
 
