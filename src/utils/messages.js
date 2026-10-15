@@ -1,7 +1,20 @@
 // src/utils/messages.js
-const generateMessage = (username, text) => ({
+const defaultModeration = {
+  risk: 0,
+  category: "Safe",
+  warning: "No major threat detected",
+  threatLevel: "Safe",
+  urgencyDetected: false,
+  matchedSignals: [],
+  signals: [],
+  explanation: "",
+  actionAdvice: "",
+};
+
+const generateMessage = (username, text, moderation = defaultModeration) => ({
   username,
   text,
+  moderation: { ...defaultModeration, ...moderation },
   createdAt: new Date().getTime(),
 });
 
@@ -11,7 +24,6 @@ const generateLocationMessage = (username, url) => ({
   createdAt: new Date().getTime(),
 });
 
-// --- NEW ---
 const generateFileMessage = (username, fileUrl, fileName, fileType) => ({
   username,
   fileUrl,
@@ -19,10 +31,10 @@ const generateFileMessage = (username, fileUrl, fileName, fileType) => ({
   fileType,
   createdAt: new Date().getTime(),
 });
-// -----------
 
 module.exports = {
   generateMessage,
   generateLocationMessage,
-  generateFileMessage,   // export the new helper
+  generateFileMessage,
+  defaultModeration,
 };

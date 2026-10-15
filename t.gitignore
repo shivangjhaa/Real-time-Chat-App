@@ -1,0 +1,32 @@
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/chat.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/css/styles.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/css/styles.min.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/join.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/js/auth.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/js/chat.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'public/js/join.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/db/mongoose.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/index.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/models/Message.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/utils/messages.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/utils/s3.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/utils/users.js', LF will be replaced by CRLF the next time Git touches it
+ README.md             | 428 [32m++++++++++++++++++++++++++++[m[31m------[m
+ package-lock.json     | 463 [32m++++++++++++++[m[31m-----------------------[m
+ package.json          |   1 [32m+[m
+ public/chat.html      | 623 [32m++++++++++++++++++++++++++++++++++++++++++++++[m[31m----[m
+ public/index.html     |   8 [32m+[m[31m-[m
+ public/join.html      | 199 [32m+++++++++++++[m[31m---[m
+ public/js/chat.js     | 537 [32m++++++++++++++++++++++++++++++++++++[m[31m-------[m
+ public/js/join.js     | 174 [32m+++++++++++[m[31m---[m
+ src/index.js          | 467 [32m+++++++++++++++++++++++++++++++++[m[31m----[m
+ src/models/Message.js |  60 [32m++++[m[31m-[m
+ src/utils/messages.js |  22 [32m+[m[31m-[m
+ src/utils/s3.js       |  97 [32m+++++[m[31m---[m
+ src/utils/users.js    |  17 [32m+[m[31m-[m
+ 13 files changed, 2447 insertions(+), 649 deletions(-)

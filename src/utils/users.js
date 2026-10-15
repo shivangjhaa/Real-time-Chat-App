@@ -1,22 +1,23 @@
 const users = [];
 
-const addUser = ({ id, username, room }) => {
-  room = room.trim().toLowerCase();
-  username = username.trim().toLowerCase();
+const addUser = ({ id, username, room, roomName }) => {
+  room = (room || "").trim().toLowerCase();
+  username = (username || "").trim();
+  const roomDisplayName = (roomName || room).trim();
 
   if (!username || !room) {
     return { error: "Username and room are required!" };
   }
 
   const existingUser = users.find((user) => {
-    return user.room === room && user.username === username;
+    return user.room === room && user.username.toLowerCase() === username.toLowerCase();
   });
 
   if (existingUser) {
-    return { error: "Username is already in use!" };
+    return { error: "Username is already in use in this room!" };
   }
 
-  user = { id, username, room };
+  const user = { id, username, room, roomName: roomDisplayName };
   users.push(user);
   return { user };
 };
@@ -27,12 +28,14 @@ const removeUser = (id) => {
     return users.splice(index, 1)[0]; // remove and return the removed user
   }
 };
+
 const getUser = (id) => {
   return users.find((user) => user.id === id);
 };
 
 const getUsersInRoom = (room) => {
-  return users.filter((user) => user.room === room.trim().toLowerCase());
+  const normalizedRoom = (room || "").trim().toLowerCase();
+  return users.filter((user) => user.room === normalizedRoom);
 };
 
 module.exports = {

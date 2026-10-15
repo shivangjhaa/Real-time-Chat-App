@@ -226,6 +226,7 @@
       flex: 1;
       display: flex; flex-direction: column;
       overflow: hidden;
+      position: relative;
       animation: fadeInMain 0.5s 0.08s cubic-bezier(0.22,1,0.36,1) both;
     }
 
@@ -312,7 +313,7 @@
       display: flex; flex-direction: column;
       max-width: 68%;
       animation: msgIn 0.26s cubic-bezier(0.22,1,0.36,1) both;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     @keyframes msgIn {
@@ -320,12 +321,43 @@
       to   { opacity:1; transform:translateY(0); }
     }
 
-    .message--self  { align-self: flex-end;  align-items: flex-end; }
-    .message--other { align-self: flex-start; align-items: flex-start; }
+    /* Right-aligned for current user */
+    .message--self  {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    /* Left-aligned for other users */
+    .message--other {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    /* Centered for system / Admin notifications */
+    .message--system {
+      align-self: center;
+      align-items: center;
+      max-width: 90%;
+      margin: 8px 0;
+    }
+
+    .message--system .message__bubble {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 5px 16px;
+      box-shadow: none;
+    }
 
     .message__header {
       display: flex; align-items: baseline; gap: 8px;
       margin-bottom: 4px; padding: 0 4px;
+    }
+
+    .message--self .message__header {
+      flex-direction: row-reverse;
     }
 
     .message__name {
@@ -334,7 +366,9 @@
       font-family: var(--font-display);
     }
 
-    .message--self .message__name { color: var(--accent); }
+    .message--self .message__name {
+      color: #a78bfa;
+    }
 
     .message__meta {
       font-size: 11px; color: var(--text-faint);
@@ -346,18 +380,21 @@
       word-break: break-word;
     }
 
+    /* Receiver bubbles (other users) - Left side, dark surface */
     .message--other .message__bubble {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
+      background: #171724;
+      border: 1px solid rgba(255, 255, 255, 0.09);
       border-bottom-left-radius: 4px;
       color: var(--text);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
     }
 
+    /* Sender bubbles (current user) - Right side, purple/indigo gradient */
     .message--self .message__bubble {
-      background: linear-gradient(135deg, var(--accent), #6b46fa);
+      background: linear-gradient(135deg, #7c5cfc, #5b3ce6);
       border-bottom-right-radius: 4px;
       color: #fff;
-      box-shadow: 0 4px 14px var(--accent-glow);
+      box-shadow: 0 4px 16px var(--accent-glow);
     }
 
     .message__bubble a {
@@ -366,6 +403,309 @@
     }
 
     .message__bubble a:hover { text-decoration-color: currentColor; }
+
+    .topbar-room-code {
+      display: inline-flex;
+      align-items: center;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-left: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .topbar-room-code:hover {
+      background: rgba(124, 92, 252, 0.18);
+      color: var(--accent-2);
+      border-color: var(--accent);
+    }
+
+    .topbar-room-code strong {
+      color: var(--text);
+      margin-left: 4px;
+    }
+
+    .invite-share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(124, 92, 252, 0.12);
+      border: 1px solid rgba(124, 92, 252, 0.35);
+      border-radius: 8px;
+      color: var(--accent-2);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-right: 12px;
+    }
+
+    .invite-share-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    .sidebar-code-pill {
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sidebar-code-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent-2);
+    }
+
+    .sidebar-code-pill strong {
+      color: var(--accent-2);
+    }
+
+    .sidebar-invite-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 7px 10px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--font-body);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .sidebar-invite-btn:hover {
+      background: rgba(124, 92, 252, 0.2);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .dashboard-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124, 92, 252, 0.16);
+      border: 1px solid rgba(124, 92, 252, 0.35);
+      color: var(--accent-2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .clear-chat-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .clear-chat-btn:hover {
+      background: rgba(239, 68, 68, 0.24);
+      border-color: #ef4444;
+      color: #fff;
+    }
+
+    .message--caution .message__bubble {
+      background: rgba(234, 179, 8, 0.12);
+      border: 1px solid rgba(234, 179, 8, 0.4);
+      box-shadow: 0 8px 20px rgba(234, 179, 8, 0.06);
+    }
+
+    .message--warning .message__bubble {
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      box-shadow: 0 10px 26px rgba(245, 158, 11, 0.08);
+    }
+
+    .message--dangerous .message__bubble {
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.55);
+      box-shadow: 0 12px 30px rgba(239, 68, 68, 0.12);
+    }
+
+    .risk-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 7px; border-radius: 999px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .risk-badge--caution {
+      color: #fde047;
+      background: rgba(234, 179, 8, 0.12);
+      border: 1px solid rgba(234, 179, 8, 0.35);
+    }
+
+    .risk-badge--warning {
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .risk-badge--dangerous {
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.38);
+    }
+
+    .message__analysis {
+      margin-top: 6px; padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      font-size: 11.5px; color: var(--text-muted);
+      max-width: 100%;
+    }
+
+    .threat-advisory-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .threat-advisory-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .chat-action-pill {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .chat-action-pill:hover {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+
+    /* Modals in chat */
+    .safety-modal-backdrop {
+      display: none;
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .safety-modal-backdrop.open { display: flex; }
+    .safety-modal {
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-radius: 14px;
+      width: 100%; max-width: 520px;
+      padding: 22px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      animation: fadeIn 0.2s ease;
+    }
+    .safety-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .safety-modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+    .safety-modal-close { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+    .safety-modal-close:hover { color: var(--text); }
+
+    .ai-threat-panel {
+      position: absolute;
+      top: calc(var(--topbar-h) + 16px);
+      right: 18px;
+      width: 282px;
+      z-index: 20;
+      background: rgba(18,18,26,0.94);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.36);
+      backdrop-filter: blur(18px);
+    }
+
+    .ai-threat-panel__title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .ai-live-pill {
+      font-family: var(--font-body);
+      font-size: 10px;
+      color: var(--success);
+      border: 1px solid rgba(74,222,128,0.28);
+      border-radius: 999px;
+      padding: 2px 7px;
+      background: rgba(74,222,128,0.07);
+    }
+
+    .ai-threat-panel__grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ai-row {
+      display: flex; justify-content: space-between; gap: 14px;
+      font-size: 12px; color: var(--text-muted);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 7px;
+    }
+
+    .ai-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .ai-row strong { color: var(--text); font-weight: 700; text-align: right; }
+    .ai-row .safe { color: var(--success); }
+    .ai-row .warning { color: #fbbf24; }
+    .ai-row .dangerous { color: #fca5a5; }
+
+    @media (min-width: 980px) {
+      .chat__messages { padding-right: 324px; }
+    }
 
     /* Empty state */
     .empty-state {
@@ -502,6 +842,14 @@
     min-height: 0;
   }
 
+  .ai-threat-panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: auto;
+    margin: 10px 14px 0;
+  }
+
   .chat__main {
     height: 100dvh;
     min-height: 0;
@@ -526,7 +874,7 @@
         <div class="brand-icon">
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.02 2 11c0 2.87 1.35 5.43 3.47 7.17L4 22l4.27-1.42A10.2 10.2 0 0 0 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2Zm1 13H7v-2h6v2Zm3-4H7V9h9v2Z"/></svg>
         </div>
-        <span class="brand-name">ChatSpace</span>
+        <span class="brand-name">SafeChat</span>
       </div>
       <div id="sidebar-content"></div>  <!-- ← add this wrapper -->
 
@@ -547,6 +895,10 @@
         <div class="topbar-room">
           <span class="topbar-room-hash">#</span>
           <span id="topbar-room-name">room</span>
+          <span class="topbar-room-code" id="topbar-room-code-badge" title="Click to copy Room Code" onclick="copyRoomCode()">
+            Code: <strong id="topbar-room-code">...</strong>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          </span>
         </div>
 
         <div class="topbar-sep"></div>
@@ -558,11 +910,50 @@
 
         <div class="topbar-spacer"></div>
 
+        <a href="/dashboard.html" class="dashboard-link-btn" title="View Real-Time Threat Intelligence & Evidence Vault">
+          🛡️ Safety Dashboard
+        </a>
+
+        <button class="invite-share-btn" onclick="copyInviteLink()" title="Copy room invite link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          <span>Share Invite</span>
+        </button>
+
+        <button class="clear-chat-btn" onclick="clearRoomChat()" title="Clear all chat history in this room">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Clear Chat</span>
+        </button>
+
         <div class="topbar-status">
           <div class="status-dot"></div>
           <span>Live</span>
         </div>
       </div>
+
+      <aside class="ai-threat-panel" aria-live="polite">
+        <div class="ai-threat-panel__title">
+          <span>AI Threat Analysis</span>
+          <span class="ai-live-pill">LIVE</span>
+        </div>
+        <div class="ai-threat-panel__grid">
+          <div class="ai-row">
+            <span>Category</span>
+            <strong id="ai-category">Safe</strong>
+          </div>
+          <div class="ai-row">
+            <span>Risk Score</span>
+            <strong id="ai-risk">0</strong>
+          </div>
+          <div class="ai-row">
+            <span>Urgency Detected</span>
+            <strong id="ai-urgency">NO</strong>
+          </div>
+          <div class="ai-row">
+            <span>Threat Level</span>
+            <strong id="ai-level" class="safe">SAFE</strong>
+          </div>
+        </div>
+      </aside>
 
       <!-- Messages -->
       <div id="messages" class="chat__messages">
@@ -617,25 +1008,48 @@
   </div>
 
 
-  <!-- ── Mustache Templates (same IDs + variables as original) ── -->
+  <!-- ── Mustache Templates ── -->
   <script id="message-template" type="text/html">
-    <div class="message message--other">
+    <div class="message {{messageClass}} {{riskClass}}" data-msg-id="{{_id}}" data-sender="{{username}}">
+      {{^isSystem}}
       <div class="message__header">
-        <span class="message__name">{{username}}</span>
+        <span class="message__name">{{displayName}}</span>
         <span class="message__meta">{{createdAt}}</span>
+        {{#isFlagged}}
+          <span class="risk-badge {{badgeClass}}">&#9888; {{category}} ({{risk}})</span>
+        {{/isFlagged}}
+        {{#canReport}}
+          <button class="chat-action-pill" onclick="openReportModal('{{_id}}', '{{username}}', '{{escapedMessage}}', '{{category}}', {{risk}}, '{{threatLevel}}', '{{escapedExplanation}}')" title="Report this message">
+            🚨 Report
+          </button>
+          <button class="chat-action-pill" onclick="blockUserAction('{{username}}')" title="Block this user">
+            🚫 Block
+          </button>
+        {{/canReport}}
       </div>
+      {{/isSystem}}
       <div class="message__bubble">{{message}}</div>
+      {{#isFlagged}}
+        <div class="message__analysis">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+            <span>⚠️ <strong>{{category}}</strong>: {{warning}}</span>
+            <button class="threat-advisory-btn" onclick="openThreatModal('{{_id}}', '{{username}}', '{{category}}', {{risk}}, '{{threatLevel}}', '{{escapedMessage}}', '{{escapedExplanation}}', '{{escapedActionAdvice}}', '{{signalsList}}')">
+              🔍 Why is this flagged?
+            </button>
+          </div>
+        </div>
+      {{/isFlagged}}
     </div>
   </script>
 
   <script id="location-message-template" type="text/html">
-    <div class="message message--other">
+    <div class="message {{messageClass}}">
       <div class="message__header">
-        <span class="message__name">{{username}}</span>
+        <span class="message__name">{{displayName}}</span>
         <span class="message__meta">{{createdAt}}</span>
       </div>
       <div class="message__bubble">
-        <a href="{{url}}" target="_blank">📍 My current location</a>
+        <a href="{{url}}" target="_blank" rel="noopener noreferrer">📍 {{locationLabel}}</a>
       </div>
     </div>
   </script>
@@ -643,10 +1057,17 @@
   <script id="sidebar-template" type="text/html">
     <div class="sidebar-room">
       <div class="room-label">Current Room</div>
-      <div class="room-title">{{room}}</div>
+      <div class="room-title">{{roomTitle}}</div>
+      <div class="sidebar-code-pill" onclick="copyRoomCode()" title="Click to copy Room Code">
+        <span>Code: <strong>{{room}}</strong></span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+      </div>
+      <button class="sidebar-invite-btn" onclick="copyInviteLink()">
+        📋 Copy Invite Link
+      </button>
     </div>
     <div class="sidebar-users">
-      <div class="list-title">Online — {{users.length}}</div>
+      <div class="list-title">Online in Room — {{users.length}}</div>
       <ul class="users">
         {{#users}}
           <li>{{username}}</li>
@@ -664,18 +1085,17 @@
   </script>
 
   <!-- Libraries -->
-   <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/amazon-cognito-identity-js/6.3.6/amazon-cognito-identity.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.6.0/qs.min.js"></script>
 
-  <!-- Auth Guard (identical to original) -->
+  <!-- Auth Guard -->
   <script>
     if (typeof AmazonCognitoIdentity === "undefined") {
-  alert("Cognito SDK failed to load");
-}
+      alert("Cognito SDK failed to load");
+    }
     const poolData = {
       UserPoolId: "ap-south-1_zkpv1rOQe",
       ClientId:   "7jba75ak4gs48c4uoa0s7c3bho"
@@ -708,6 +1128,38 @@
       setTimeout(() => t.classList.remove("show"), 3200);
     }
 
+    /* ── Room Code & Invite Link Copy ───────────────────── */
+    function copyRoomCode() {
+      const p = new URLSearchParams(window.location.search);
+      const room = p.get("room") || "";
+      if (!room) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(room).then(() => {
+          showToast(`Room Code copied: ${room}`, "success");
+        }).catch(() => {
+          prompt("Copy Room Code:", room);
+        });
+      } else {
+        prompt("Copy Room Code:", room);
+      }
+    }
+
+    function copyInviteLink() {
+      const p = new URLSearchParams(window.location.search);
+      const room = p.get("room") || "";
+      const roomName = p.get("roomName") || "";
+      const inviteUrl = `${window.location.origin}/join.html?code=${encodeURIComponent(room)}&room=${encodeURIComponent(roomName)}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(inviteUrl).then(() => {
+          showToast("Room invite link copied to clipboard!", "success");
+        }).catch(() => {
+          prompt("Copy Invite Link:", inviteUrl);
+        });
+      } else {
+        prompt("Copy Invite Link:", inviteUrl);
+      }
+    }
+
     /* ── Mobile sidebar ─────────────────────────────────── */
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("open");
@@ -732,15 +1184,18 @@
 
     /* ── Topbar from URL params ─────────────────────────── */
     (function () {
-      const p    = new URLSearchParams(window.location.search);
-      const user = p.get("username") || localStorage.getItem("email") || "You";
-      const room = p.get("room") || "room";
+      const p        = new URLSearchParams(window.location.search);
+      const user     = p.get("username") || localStorage.getItem("email") || "You";
+      const room     = p.get("room") || "general";
+      const roomName = p.get("roomName") || (room.includes("-") ? room.split("-")[0] : room);
 
       const rn = document.getElementById("topbar-room-name");
+      const rc = document.getElementById("topbar-room-code");
       const av = document.getElementById("topbar-avatar");
       const un = document.getElementById("topbar-username");
 
-      if (rn) rn.textContent = room;
+      if (rn) rn.textContent = roomName;
+      if (rc) rc.textContent = room;
       if (av) av.textContent = user.charAt(0).toUpperCase();
       if (un) un.textContent = user;
     })();
@@ -756,29 +1211,107 @@
     }
   </script>
 
-  <!-- Your existing chat logic — completely untouched -->
-   <script id="file-message-template" type="text/html">
-  <div class="message message--other">
-    <div class="message__header">
-      <span class="message__name">{{username}}</span>
-      <span class="message__meta">{{createdAt}}</span>
+  <script id="file-message-template" type="text/html">
+    <div class="message {{messageClass}}">
+      <div class="message__header">
+        <span class="message__name">{{displayName}}</span>
+        <span class="message__meta">{{createdAt}}</span>
+      </div>
+      <div class="message__bubble">
+        {{#isImage}}
+          <img src="{{fileUrl}}" alt="{{fileName}}"
+               style="max-width:260px; max-height:260px; border-radius:8px; display:block; margin-bottom:6px; cursor:pointer;"
+               onload="if(typeof scrollToBottom==='function') scrollToBottom(true)"
+               onclick="window.open('{{fileUrl}}','_blank')" />
+        {{/isImage}}
+        <a href="{{fileUrl}}" target="_blank" rel="noopener noreferrer"
+           style="font-size:13px; display:inline-flex; align-items:center; gap:6px;">
+          📎 {{fileName}}
+        </a>
+      </div>
     </div>
-    <div class="message__bubble">
-      {{#isImage}}
-        <img src="{{fileUrl}}" alt="{{fileName}}"
-             style="max-width:220px; max-height:220px; border-radius:8px; display:block; margin-bottom:6px;"
-             onclick="window.open('{{fileUrl}}','_blank')" />
-      {{/isImage}}
-      <a href="{{fileUrl}}" target="_blank" rel="noopener noreferrer"
-         style="font-size:13px;">
-        📎 {{fileName}}
-      </a>
+  </script>
+  <!-- Threat Advisory Modal -->
+  <div class="safety-modal-backdrop" id="threat-modal">
+    <div class="safety-modal">
+      <div class="safety-modal-header">
+        <div class="safety-modal-title">🛡️ AI Threat Explanation & Safety Advisory</div>
+        <button class="safety-modal-close" onclick="closeThreatModal()">&times;</button>
+      </div>
+      <div style="font-size: 13.5px; line-height: 1.6;">
+        <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+          <span id="tm-category-badge" class="risk-badge risk-badge--dangerous">Category</span>
+          <span id="tm-risk-badge" class="risk-badge risk-badge--warning">Risk: 0</span>
+          <span id="tm-level-badge" class="risk-badge risk-badge--caution">Level</span>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Intercepted Text:</div>
+          <div id="tm-message-text" style="background:var(--surface-2); padding:8px 12px; border-radius:8px; border:1px solid var(--border); font-style:italic;"></div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Why is this flagged?</div>
+          <div id="tm-explanation" style="background:rgba(255,255,255,0.03); padding:10px 12px; border-radius:8px; border-left:3px solid var(--accent); color:#f0eeff;"></div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Matched Signals:</div>
+          <div id="tm-signals" style="font-size:12.5px; color:var(--accent-2);"></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Recommended Response:</div>
+          <div id="tm-advice" style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239,68,68,0.25); color:#fca5a5; padding:10px 12px; border-radius:8px; font-weight:500;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <button id="tm-block-btn" class="chat-action-pill" style="font-size:12px; padding:6px 12px; background:var(--surface-3); color:#f87171; border:1px solid rgba(248,113,113,0.3);">🚫 Block User</button>
+          <div style="display:flex; gap:8px;">
+            <button onclick="closeThreatModal()" class="chat-action-pill" style="font-size:12px; padding:6px 12px;">Close</button>
+            <button id="tm-report-btn" class="chat-action-pill" style="font-size:12px; padding:6px 12px; background:#ef4444; color:white;">🚨 Report Incident</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</script>
-  <script src="/js/chat.js"></script>
 
-  
+  <!-- Incident Reporting Modal -->
+  <div class="safety-modal-backdrop" id="report-modal">
+    <div class="safety-modal">
+      <div class="safety-modal-header">
+        <div class="safety-modal-title">🚨 Report Incident & Secure Evidence</div>
+        <button class="safety-modal-close" onclick="closeReportModal()">&times;</button>
+      </div>
+      <div style="font-size: 13.5px;">
+        <p style="color:var(--text-muted); font-size:12.5px; margin-bottom:12px;">
+          Your report will capture a cryptographic SHA-256 evidence trail of recent messages and log it for platform administration and safety review.
+        </p>
+
+        <div style="margin-bottom:10px;">
+          <strong style="font-size:11.5px; text-transform:uppercase; color:var(--text-muted);">Reported User:</strong>
+          <div id="rm-user" style="font-weight:600; color:#f87171; margin-top:2px;"></div>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <strong style="font-size:11.5px; text-transform:uppercase; color:var(--text-muted);">Message:</strong>
+          <div id="rm-message" style="background:var(--surface-2); padding:8px 10px; border-radius:6px; font-size:12.5px; margin-top:2px; max-height:80px; overflow-y:auto;"></div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="font-size:11.5px; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px; font-weight:600;">Optional Notes / Context:</label>
+          <textarea id="rm-notes" rows="3" placeholder="Provide any additional details or background (optional)..." style="width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 12px; font-family:var(--font-body); font-size:13px; outline:none; resize:none;"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button onclick="closeReportModal()" class="chat-action-pill" style="font-size:12px; padding:6px 12px;">Cancel</button>
+          <button onclick="submitIncidentReport()" class="chat-action-pill" style="font-size:12px; padding:6px 14px; background:var(--accent); color:white;" id="rm-submit-btn">Submit Incident Report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/chat.js"></script>
 
 </body>
 </html>

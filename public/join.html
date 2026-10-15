@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Join a Room | ChatSpace</title>
+  <title>Join a Room | SafeChat</title>
   <link rel="icon" href="/image/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -221,12 +221,82 @@
       animation: fadeUp 0.6s 0.2s cubic-bezier(0.22,1,0.36,1) both;
     }
 
+    /* ── Tabs ────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-top: 22px;
+      margin-bottom: 22px;
+      gap: 4px;
+      animation: fadeUp 0.6s 0.22s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 9px 0;
+      border: none;
+      border-radius: 7px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 12px var(--accent-glow);
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .input-with-action {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .input-action-btn {
+      padding: 0 14px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--accent-2);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .input-action-btn:hover {
+      background: rgba(124, 92, 252, 0.2);
+      border-color: var(--accent);
+    }
+
+    .field-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
     /* ── Fields ──────────────────────────────────── */
     .fields {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      margin-top: 28px;
+      margin-top: 20px;
       animation: fadeUp 0.6s 0.25s cubic-bezier(0.22,1,0.36,1) both;
     }
 
@@ -469,7 +539,7 @@
           <path d="M12 2C6.48 2 2 6.02 2 11c0 2.87 1.35 5.43 3.47 7.17L4 22l4.27-1.42A10.2 10.2 0 0 0 12 21c5.52 0 10-4.02 10-9S17.52 2 12 2Zm1 13H7v-2h6v2Zm3-4H7V9h9v2Z"/>
         </svg>
       </div>
-      <span class="brand-name">ChatSpace</span>
+      <span class="brand-name">SafeChat</span>
     </div>
 
     <!-- Logged-in user pill -->
@@ -481,13 +551,18 @@
 
     <!-- Heading -->
     <div class="heading">
-      <h1>Pick your room</h1>
-      <p>Choose a display name and enter a room to start chatting.</p>
+      <h1 id="heading-title">Create or Join a Room</h1>
+      <p id="heading-sub">Connect with your friends in an isolated chat session.</p>
     </div>
 
-    <!-- Fields -->
-    <div class="fields">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-create" onclick="switchMode('create')">Create Room</button>
+      <button class="tab-btn" id="tab-join" onclick="switchMode('join')">Join Room</button>
+    </div>
 
+    <!-- Fields: Shared Display Name -->
+    <div class="fields">
       <div class="field">
         <label>Display Name</label>
         <div class="field-inner">
@@ -506,41 +581,105 @@
         </div>
       </div>
 
-      <div class="field">
-        <label>Room Name</label>
-        <div class="field-inner">
-          <input
-            type="text"
-            id="room"
-            placeholder="e.g. general"
-            autocomplete="off"
-            maxlength="32"
-          />
-          <span class="field-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5" />
-            </svg>
-          </span>
+      <!-- CREATE ROOM FIELDS -->
+      <div id="create-mode-fields">
+        <div class="field" style="margin-bottom: 16px;">
+          <label>Room Name</label>
+          <div class="field-inner">
+            <input
+              type="text"
+              id="room-name-create"
+              placeholder="e.g. tech"
+              autocomplete="off"
+              maxlength="32"
+            />
+            <span class="field-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5" />
+              </svg>
+            </span>
+          </div>
+          <p class="field-hint">The room title that everyone in your group will see.</p>
         </div>
 
-       
-        
+        <div class="field">
+          <label>Room Code / Passcode</label>
+          <div class="input-with-action">
+            <div class="field-inner" style="flex: 1;">
+              <input
+                type="text"
+                id="room-code-create"
+                placeholder="e.g. 1234 (or leave blank to auto-generate)"
+                autocomplete="off"
+                maxlength="32"
+              />
+              <span class="field-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                </svg>
+              </span>
+            </div>
+            <button type="button" class="input-action-btn" onclick="generateNewRoomCode()">🎲 Random</button>
+          </div>
+          <p class="field-hint">Your room ID will be automatically prefixed with your room name (e.g. tech-1234).</p>
+        </div>
       </div>
 
+      <!-- JOIN ROOM FIELDS -->
+      <div id="join-mode-fields" style="display: none;">
+        <div class="field" style="margin-bottom: 16px;">
+          <label>Room Code / Invite Code</label>
+          <div class="field-inner">
+            <input
+              type="text"
+              id="room-code-join"
+              placeholder="e.g. tech-1234 or 1234"
+              autocomplete="off"
+              maxlength="40"
+            />
+            <span class="field-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+              </svg>
+            </span>
+          </div>
+          <p class="field-hint">Enter the full room code (e.g. tech-1234) or short code (1234 with room name below).</p>
+        </div>
+
+        <div class="field">
+          <label>Room Name (Optional)</label>
+          <div class="field-inner">
+            <input
+              type="text"
+              id="room-name-join"
+              placeholder="e.g. tech"
+              autocomplete="off"
+              maxlength="32"
+            />
+            <span class="field-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5" />
+              </svg>
+            </span>
+          </div>
+          <p class="field-hint">Display name for the room.</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Join button -->
-    <button class="submit-btn" id="join-btn" onclick="handleJoin()">
-      <span class="btn-text">
-        Join Chat
+    <!-- Submit button -->
+    <button class="submit-btn" id="join-btn" onclick="handleSubmit()">
+      <span class="btn-text" id="submit-btn-text">
+        Create & Enter Room
         <span class="btn-arrow">→</span>
       </span>
       <div class="spinner"></div>
     </button>
 
     <!-- Logout -->
-    <div class="card-footer">
-      Not you? <a href="#" onclick="handleLogout(); return false;">Sign out</a>
+    <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px;">
+      <span>Not you? <a href="#" onclick="handleLogout(); return false;">Sign out</a></span>
+      <a href="/dashboard.html" style="color: var(--accent-2); font-weight: 500;">🛡️ Safety Dashboard →</a>
     </div>
 
   </div>
